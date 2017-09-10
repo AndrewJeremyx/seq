@@ -1,21 +1,18 @@
+#ifndef SEQ_H
+#define SEQ_H
 #include <cstddef>
 #include <initializer_list>
 template<typename T>
 class Seq
 {
+protected:
     std::size_t length_;
     bool isEmpty;
 public:
-    Seq(std::initializer_list<T> init_list)
+    Seq(): length_(0), isEmpty(1) {};
+    Seq(const Seq& seq)
     {
-        for (auto i : init_list)
-        {
-            Append(i);
-        }
-    }
-    Seq(Seq& seq)
-    {
-        for (auto i = 1; i++; i <= seq.length_)
+        for (auto i = 0; i < seq.length_; i++)
         {
             Append(seq.Get(i));
         }
@@ -24,11 +21,12 @@ public:
     std::size_t getLength() const noexcept {return length_;}
     bool getIsEmpty() const noexcept {return isEmpty;}
     virtual T Get(size_t index) const = 0 ;
-    T GetFirst() const {return Get(1);}
-    T GetLast() const {return Get(length_);}
+    T GetFirst() const {return Get(0);}
+    T GetLast() const {return Get(length_ - 1);}
     virtual void InsertAt(std::size_t index, T elem) = 0;
-    void Append(T elem){InsertAt(1, elem);}
-    void Prepend(T elem){InsertAt(length_, elem);}
+    void Append(T elem){InsertAt(length_, elem);}
+    void Prepend(T elem){InsertAt(0, elem);}
     virtual void Remove(T elem) = 0;
     operator bool() const {return !isEmpty;}
 };
+#endif
