@@ -8,10 +8,14 @@ class SeqArray : public Seq<T>
     T* array_;
 public:
     SeqArray() : Seq<T>(), array_(nullptr) {}
-    SeqArray(std::initializer_list<T> init_list) : Seq<T>(), array_(nullptr)
+    SeqArray(std::initializer_list<T> init_list) : Seq<T>(),
+                                                   array_(new T[init_list.size()])
     {
-        for (auto i : init_list) {
-            this->Prepend(i);
+        this->length_ = init_list.size();
+        int i = 0;
+        for (auto& item : init_list)
+        {
+            array_[i++] = item;
         }
     }
     virtual ~SeqArray() override
@@ -68,5 +72,7 @@ public:
         delete[] array_;
         array_ = tmp;
     }
+    T* begin() {return array_;}
+    T* end() {return array_ + this->length_;}
 };
 #endif
