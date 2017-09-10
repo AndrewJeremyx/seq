@@ -35,9 +35,7 @@ public:
     virtual void InsertAt(std::size_t index, T elem) override
     {
         if (index > this->length_)
-        {
             throw 8;
-        }
         T* tmp = new T [this->length_ + 1];
         memcpy(tmp, array_, (index) * sizeof(elem));
         tmp[index] = elem;
@@ -55,10 +53,12 @@ public:
                 ++counter;
         }
         T* tmp;
+
         if (counter == 0)
         {
             tmp = nullptr;
             this->isEmpty = 1;
+            this->length_ = counter;
             return;
         }
         else
@@ -71,6 +71,7 @@ public:
         }
         delete[] array_;
         array_ = tmp;
+        this->length_ = counter;
     }
     T* begin() {return array_;}
     T* end() {return array_ + this->length_;}
