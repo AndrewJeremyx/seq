@@ -25,7 +25,71 @@ public:
 
     SeqList() : Seq<T>(), head_(nullptr) {}
 
-    SeqList(std::initializer_list<T> init_list) : Seq<T>() {
+    SeqList(const SeqList& other) {
+        this->length_ = other.length_;
+        this->isEmpty = other.isEmpty;
+        this->head_ = nullptr;
+        if (other) {
+            head_ = new Node(other.head_->data_);
+            auto tmp = other.head_;
+            auto tmp2 = head_;
+            for (auto i = 1; i < other.length_; ++i) {
+                tmp2->next_ = new Node(tmp->next_->data_);
+                tmp = tmp->next_;
+                tmp2 = tmp2->next_;
+            }
+        }
+    }
+
+    SeqList(SeqList&& other) {
+        this->length_ = other.length_;
+        this->isEmpty = other.isEmpty;
+        this->head_ = other.head_;
+        other.head_ = nullptr;
+        other.isEmpty = 1;
+        other.length_ = 0;
+    }
+
+    SeqList(std::initializer_list<T> init_list) : SeqList() {
+        for (auto& item : init_list) {this->Append(item);}
+    }
+
+    SeqList&operator =(const SeqList& rhs) {
+        if (&rhs != this) {
+            if (*this) { delete head_; }
+            this->length_ = rhs.length_;
+            this->isEmpty = rhs.isEmpty;
+            this->head_ = nullptr;
+            if (rhs) {
+                head_ = new Node(rhs.head_->data_);
+                auto tmp = rhs.head_;
+                auto tmp2 = head_;
+                for (auto i = 1; i < rhs.length_; ++i) {
+                    tmp2->next_ = new Node(tmp->next_->data_);
+                    tmp = tmp->next_;
+                    tmp2 = tmp2->next_;
+                }
+            }
+        }
+    }
+
+    SeqList&operator =(SeqList&& rhs) {
+        if (&rhs != this) {
+            if (head_) {delete head_;}
+            this->length_ = rhs.length_;
+            this->isEmpty = rhs.isEmpty;
+            this->head_ = rhs.head_;
+            rhs.head_ = nullptr;
+            rhs.isEmpty = 1;
+            rhs.length_ = 0;
+        }
+        return *this;
+    }
+
+    SeqList&operator =(std::initializer_list<T> init_list) {
+        if (*this) {delete head_;};
+        this->length_ = init_list.size();
+        this->isEmpty = !init_list.size();
         for (auto& item : init_list) {this->Append(item);}
     }
 
@@ -50,6 +114,7 @@ public:
             auto tmp = next;
             next = head_;
             head_ = tmp;
+            head_->next_ = next;
             this->isEmpty = 0;
         }
         else {
@@ -89,6 +154,29 @@ public:
                 }
             }
         }
+    SeqList<T> GetSubSeq(std::size_t begin, std::size_t end) const {
+        if ((begin > end) || (end >= this->length_)) {throw std::out_of_range("bad index");}
+        SeqList<T> result;
+        auto tmp = head_;
+        Node* tmp2;
+        for (auto i = 0; i < end + 1; ++i) {
+            if (i < begin) {tmp = tmp->next_;}
+            else if (i == begin) {
+                result.head_ = new Node(tmp->data_);
+                tmp2 = result.head_;
+                ++result.length_;
+                result.isEmpty = 0;
+                tmp = tmp->next_;
+            }
+            else {
+                tmp2->next_ = new Node(tmp->data_);
+                tmp2 = tmp2->next_; 
+                tmp = tmp->next_;
+                ++result.length_;
+            }
+        }
+        return std::move(result);
+    }
 };
 #endif
 
