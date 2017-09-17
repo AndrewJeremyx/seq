@@ -30,8 +30,8 @@ public:
 template <class SeqType>
 struct test {
     void testss() {
-        Tester tester(1);
-        Seq<int> *seq = new(SeqType);
+        Tester tester(0);
+        SeqType *seq = new(SeqType);
         tester(seq->getLength() == 0, "Length() == 0");
         tester(seq->getIsEmpty() == 1, "IsEmpty == 1");
         seq->Append(23);
@@ -72,7 +72,6 @@ struct test {
         tester(seq->GetLast() == 43, "GetLast == 43");
         tester(seq->Get(0) == 53, "Get(0) == 53");
         tester(seq->Get(1) == 23, "Get(1) == 23");
-        std::cout << seq->Get(1) << std::endl;
         try {
             seq->Get(-1);
             tester(false, "Get(-1) => throw exception");
@@ -83,17 +82,37 @@ struct test {
             tester(false, "Get(3) => throw exception");
         }
         catch (std::exception &) { tester(true, "Get(3) => throw exception"); };
-        SeqType tmpseq = dynamic_cast<SeqType*>(seq)->GetSubSeq(1,1);
-        Seq<int>* seq2 = &tmpseq;
+        seq->Remove(53);
+        tester(seq->getLength() == 2,"Length == 2");
+        tester(seq->GetFirst() == 23, "GetFirst == 23");
+        auto seq2 = new SeqType(seq->GetSubSeq(1,1));
         tester(seq2->getLength() == 1, "Length() == 1");
         tester(seq2->getIsEmpty() == 0, "IsEmpty == 0");
-        tester(seq2->GetFirst() == 23, "GetFirst == 23");
-        tester(seq2->GetLast() == 23, "GetLast == 23");
+        tester(seq2->GetFirst() == 43, "GetFirst == 43");
+        tester(seq2->GetLast() == 43, "GetLast == 43");
+        delete seq;
+        delete seq2;
+        seq = new SeqType({});
+        seq->Append(1);
+        seq->Append(1);
+        seq->Append(1);
+        seq2 = new SeqType(*seq);
+        tester(seq2->getLength() == 3,"Length == 3");
+        seq2->Remove(1);
+        tester(seq2->getLength() == 0,"Length == 0");
+        tester(seq2->getIsEmpty() == 1,"IsEmpty == 1");
+        tester(seq->getLength() == 3,"Length == 3");
+        seq->Append(3);
+        delete seq2;
+        seq2 = new SeqType(std::move(*seq));
+        tester(seq->getLength() == 0,"Length == 0");
+        tester(seq->getIsEmpty() == 1,"IsEmpty == 1");
+        tester(seq2->getLength() == 4,"Length == 4");
+        tester(seq2->GetFirst() == 1,"GetFirst == 1");
+        tester(seq2->GetLast() == 3,"GetLast == 3");
         tester();
     }
 };
-
-
 
 int main() {
     test<SeqList<int> > A;

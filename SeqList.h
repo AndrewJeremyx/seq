@@ -1,6 +1,7 @@
 #ifndef SEQLIST_H
 #define SEQLIST_H
 #include "seq.h"
+#include <iostream>
 #include <initializer_list>
 #include <utility>
 template <typename T>
@@ -26,6 +27,7 @@ public:
     SeqList() : Seq<T>(), head_(nullptr) {}
 
     SeqList(const SeqList& other) {
+        std::cout << "копирование" << std::endl;
         this->length_ = other.length_;
         this->isEmpty = other.isEmpty;
         this->head_ = nullptr;
