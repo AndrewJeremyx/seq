@@ -20,17 +20,17 @@ class SeqList : public Seq<T> {
         }
     };
 
+    std::size_t length_;
+
+    bool isEmpty;
+
     Node* head_;
 
 public:
 
-    SeqList() : Seq<T>(), head_(nullptr) {}
+    SeqList() : length_(0), isEmpty(1), head_(nullptr) {}
 
-    SeqList(const SeqList& other) {
-        std::cout << "копирование" << std::endl;
-        this->length_ = other.length_;
-        this->isEmpty = other.isEmpty;
-        this->head_ = nullptr;
+    SeqList(const SeqList& other): length_(other.length_), isEmpty(other.isEmpty), head_(nullptr) {
         if (other) {
             head_ = new Node(other.head_->data_);
             auto tmp = other.head_;
@@ -43,25 +43,22 @@ public:
         }
     }
 
-    SeqList(SeqList&& other) {
-        this->length_ = other.length_;
-        this->isEmpty = other.isEmpty;
-        this->head_ = other.head_;
+    SeqList(SeqList&& other): length_(other.length_), isEmpty(other.isEmpty), head_(other.head_) {
         other.head_ = nullptr;
         other.isEmpty = 1;
         other.length_ = 0;
     }
 
-    SeqList(std::initializer_list<T> init_list) : SeqList() {
+    SeqList(std::initializer_list<T> init_list) : length_(init_list.size()), isEmpty(!init_list.size())  {
         for (auto& item : init_list) {this->Append(item);}
     }
 
     SeqList&operator =(const SeqList& rhs) {
         if (&rhs != this) {
             if (*this) { delete head_; }
-            this->length_ = rhs.length_;
-            this->isEmpty = rhs.isEmpty;
-            this->head_ = nullptr;
+            length_ = rhs.length_;
+            isEmpty = rhs.isEmpty;
+            head_ = nullptr;
             if (rhs) {
                 head_ = new Node(rhs.head_->data_);
                 auto tmp = rhs.head_;
@@ -78,9 +75,9 @@ public:
     SeqList&operator =(SeqList&& rhs) {
         if (&rhs != this) {
             if (head_) {delete head_;}
-            this->length_ = rhs.length_;
-            this->isEmpty = rhs.isEmpty;
-            this->head_ = rhs.head_;
+            length_ = rhs.length_;
+            isEmpty = rhs.isEmpty;
+            head_ = rhs.head_;
             rhs.head_ = nullptr;
             rhs.isEmpty = 1;
             rhs.length_ = 0;
@@ -90,8 +87,8 @@ public:
 
     SeqList&operator =(std::initializer_list<T> init_list) {
         if (*this) {delete head_;};
-        this->length_ = init_list.size();
-        this->isEmpty = !init_list.size();
+        length_ = init_list.size();
+        isEmpty = !init_list.size();
         for (auto& item : init_list) {this->Append(item);}
     }
 
@@ -99,8 +96,12 @@ public:
         if (head_) {delete head_;}
     }
 
+    virtual std::size_t getLength() const noexcept override {return length_;}
+
+    virtual bool getIsEmpty() const noexcept override {return isEmpty;}
+
     virtual T Get(std::size_t index) const override {
-        if ((index < this->length_) && (index  >= 0)) {
+        if ((index < length_) && (index  >= 0)) {
             Node* tmp = head_;
             for (auto i = 0; i < index; ++i) {tmp = tmp->next_;}
             return tmp->data_;
@@ -111,7 +112,7 @@ public:
 
     virtual void InsertAt(std::size_t index, T elem) override {
         auto next = new Node(elem);
-        if ((index > this->length_) && (index < 0)) {throw std::out_of_range("bad index");}
+        if ((index > length_) && (index < 0)) {throw std::out_of_range("invalid index");}
         if (!index) {
             auto tmp = next;
             next = head_;
@@ -134,10 +135,10 @@ public:
             auto tmp = head_;
             head_ = head_->next_;
             tmp->next_ = nullptr;
-            --this->length_;
+            --length_;
             delete tmp;
             if (!head_) {
-                this->isEmpty = 1;
+                isEmpty = 1;
                 return;
             }
         }
@@ -149,15 +150,16 @@ public:
                     that->next_ = nullptr;
                     delete that;
                     that = prev->next_;
-                    --this->length_;
+                    --length_;
                 }
                 else {
                     that = that->next_;
                 }
             }
         }
+
     SeqList<T> GetSubSeq(std::size_t begin, std::size_t end) const {
-        if ((begin > end) || (end >= this->length_)) {throw std::out_of_range("bad index");}
+        if ((begin > end) || (end >= length_)) {throw std::out_of_range("bad index");}
         SeqList<T> result;
         auto tmp = head_;
         Node* tmp2;

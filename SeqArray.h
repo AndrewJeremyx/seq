@@ -2,34 +2,34 @@
 #define SEQ_SEQARRAY_H
 #include "seq.h"
 #include <cstring>
+#include <cstddef>
 template <typename T>
 class SeqArray : public Seq<T> {
+
+    std::size_t length_;
+
+    bool isEmpty;
 
     T* array_;
 
 public:
 
-    SeqArray() : Seq<T>(), array_(nullptr) {}
+    SeqArray() : length_(0), isEmpty(1), array_(nullptr) {}
 
-    SeqArray(const SeqArray& other): Seq<T>(){
-        this->length_ = other.length_;
-        this->isEmpty = other.isEmpty;
-        array_ = new T[this->length_];
-        for (auto i = 0; i < this->length_; ++i) {array_[i] = other.array_[i];}
+    SeqArray(const SeqArray& other): length_(other.length_), isEmpty(other.isEmpty),
+                                     array_(new T[this->length_]) {
+        for (auto i = 0; i < length_; ++i) {array_[i] = other.array_[i];}
     }
 
-    SeqArray(SeqArray&& other): Seq<T>(){
-        this->length_ = other.length_;
-        this->isEmpty = other.isEmpty;
-        this->array_ = other.array_;
+    SeqArray(SeqArray&& other): length_(other.length_), isEmpty(other.isEmpty),
+                                array_(other.array_) {
         other.array_ = nullptr;
         other.length_ = 0;
         other.isEmpty = 1;
     }
 
-    SeqArray(std::initializer_list<T> init_list) : Seq<T>(), array_(new T[init_list.size()]) {
-        this->length_ = init_list.size();
-        if (this->length_) {this->isEmpty = 0;}
+    SeqArray(std::initializer_list<T> init_list) : length_(init_list.size()), isEmpty(!init_list.size()),
+                                                   array_(new T[init_list.size()]) {
         int i = 0;
         for (auto& item : init_list) {array_[i++] = std::move(item);}
     }
@@ -38,9 +38,9 @@ public:
         if (&rhs != this) {
             if (array_) {delete[] array_;}
             array_ = new T[rhs.length_];
-            this->length_ = rhs.length_;
-            this->isEmpty = rhs.isEmpty;
-            for (auto i = 0; i < this->length_; ++i) {array_[i] = rhs.array_[i];}
+            length_ = rhs.length_;
+            isEmpty = rhs.isEmpty;
+            for (auto i = 0; i < length_; ++i) {array_[i] = rhs.array_[i];}
         }
         return *this;
     }
@@ -48,8 +48,8 @@ public:
     SeqArray& operator = (SeqArray&& rhs) {
         if (this != &rhs) {
             if (array_) {delete[] array_;}
-            this->length_ = rhs.length_;
-            this->isEmpty = rhs.isEmpty;
+            length_ = rhs.length_;
+            isEmpty = rhs.isEmpty;
             array_ = rhs.array_;
         }
         return *this;
@@ -58,8 +58,8 @@ public:
     SeqArray&operator = (std::initializer_list<T> init_list) {
         if (array_) {delete[] array_;}
         array_ = new T[init_list.size()];
-        this->length_ = init_list.size();
-        if (this->length_) {this->isEmpty = 0;}
+        length_ = init_list.size();
+        if (length_) {isEmpty = 0;}
         int i = 0;
         for (auto& item : init_list) {array_[i++] = std::move(item);}
     }
@@ -68,8 +68,12 @@ public:
         if (*this) {delete[] array_;}
     }
 
+    virtual std::size_t getLength() const noexcept override {return length_;}
+
+    virtual bool getIsEmpty() const noexcept override {return isEmpty;}
+
     virtual T Get(std::size_t index) const override {
-        if ((index < this->length_) && (index  >= 0)) {
+        if ((index < length_) && (index  >= 0)) {
             return array_[index];}
         else {
             throw std::out_of_range("bad index");
@@ -77,15 +81,15 @@ public:
     }
 
     virtual void InsertAt(std::size_t index, T elem) override {
-        if (index > this->length_) {throw 8;}
-        T* tmp = new T [this->length_ + 1];
+        if (index > length_) {throw std::exception("invalid index");}
+        T* tmp = new T [length_ + 1];
         for (auto i = 0; i < index; ++i) {tmp[i] = std::move(array_[i]);}
         tmp[index] = elem;
-        ++this->length_;
-        for (auto i = index + 1; i < this->length_; ++i) {tmp[i] = std::move(array_[i - 1]);}
+        ++length_;
+        for (auto i = index + 1; i < length_; ++i) {tmp[i] = std::move(array_[i - 1]);}
         delete[] array_;
         array_ = tmp;
-        this->isEmpty = 0;
+        isEmpty = 0;
     }
 
     virtual void Remove(T elem) override {
@@ -105,7 +109,7 @@ public:
         }
         delete[] array_;
         array_ = tmp;
-        this->length_ = counter;
+        length_ = counter;
     }
 
     SeqArray GetSubSeq(std::size_t begin, std::size_t end) {

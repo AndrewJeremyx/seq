@@ -30,7 +30,7 @@ public:
 template <class SeqType>
 struct test {
     void testss() {
-        Tester tester(0);
+        Tester tester(1);
         SeqType *seq = new(SeqType);
         tester(seq->getLength() == 0, "Length() == 0");
         tester(seq->getIsEmpty() == 1, "IsEmpty == 1");
