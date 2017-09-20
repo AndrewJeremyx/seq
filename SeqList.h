@@ -49,8 +49,9 @@ public:
         other.length_ = 0;
     }
 
-    SeqList(std::initializer_list<T> init_list) : length_(init_list.size()), isEmpty(!init_list.size())  {
-        for (auto& item : init_list) {this->Append(item);}
+    SeqList(std::initializer_list<T> init_list) : length_(0), head_(nullptr), isEmpty(!init_list.size())  {
+        int i = 0;
+        for (auto& item : init_list) {this->InsertAt(i++,item);}
     }
 
     SeqList&operator =(const SeqList& rhs) {
@@ -181,6 +182,8 @@ public:
         }
         return std::move(result);
     }
+
+    virtual Seq<T>* Copy() const override {return new SeqList();}
 };
 #endif
 

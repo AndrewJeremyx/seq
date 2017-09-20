@@ -28,5 +28,7 @@ public:
     virtual void Remove(T elem) = 0;
 
     operator bool() const {return !getIsEmpty();}
+
+    virtual Seq<T>* Copy() const = 0;
 };
 #endif

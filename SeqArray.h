@@ -81,7 +81,7 @@ public:
     }
 
     virtual void InsertAt(std::size_t index, T elem) override {
-        if (index > length_) {throw std::exception("invalid index");}
+        if (index > length_) {throw std::out_of_range("invalid index");}
         T* tmp = new T [length_ + 1];
         for (auto i = 0; i < index; ++i) {tmp[i] = std::move(array_[i]);}
         tmp[index] = elem;
@@ -121,5 +121,7 @@ public:
         for (auto i = begin; i < end + 1; ++i) {result.array_[i - begin] = std::move(this->Get(i));}
         return std::move(result);
     }
+
+    virtual Seq<T>* Copy() const override {return new SeqArray();}
 };
 #endif
