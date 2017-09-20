@@ -112,8 +112,8 @@ public:
     }
 
     virtual void InsertAt(std::size_t index, T elem) override {
-        auto next = new Node(elem);
         if ((index > length_) && (index < 0)) {throw std::out_of_range("invalid index");}
+        auto next = new Node(elem);
         if (!index) {
             auto tmp = next;
             next = head_;
