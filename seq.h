@@ -15,6 +15,8 @@ public:
 
     virtual T Get(size_t index) const = 0;
 
+    virtual T& Get(size_t index) = 0;
+
     T GetFirst() const {return Get(0);}
 
     T GetLast() const {return Get(getLength() - 1);}
@@ -27,7 +29,11 @@ public:
 
     virtual void Remove(T elem) = 0;
 
+    virtual void Clear() = 0;
+
     operator bool() const {return !getIsEmpty();}
+
+    virtual Seq<T>* GetSubSeq(std::size_t begin, std::size_t end) const = 0; 
 
     virtual Seq<T>* Copy() const = 0;
 };

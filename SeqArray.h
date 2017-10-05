@@ -80,6 +80,14 @@ public:
         }
     }
 
+    virtual T& Get(std::size_t index) override {
+        if ((index < length_) && (index  >= 0)) {
+            return array_[index];}
+        else {
+            throw std::out_of_range("bad index");
+        }
+    }
+
     virtual void InsertAt(std::size_t index, T elem) override {
         if (index > length_) {throw std::out_of_range("invalid index");}
         T* tmp = new T [length_ + 1];
@@ -112,16 +120,23 @@ public:
         length_ = counter;
     }
 
-    SeqArray GetSubSeq(std::size_t begin, std::size_t end) {
+    virtual Seq<T>* GetSubSeq(std::size_t begin, std::size_t end) const override {
         if ((begin > end) || (end >= this->length_)) {throw std::out_of_range("bad index");}
-        SeqArray result;
-        result.length_ = end - begin + 1;
-        result.array_ = new T[result.length_];
-        result.isEmpty = 0;
-        for (auto i = begin; i < end + 1; ++i) {result.array_[i - begin] = std::move(this->Get(i));}
-        return std::move(result);
+        SeqArray* result = new SeqArray;
+        result->length_ = end - begin + 1;
+        result->array_ = new T[result->length_];
+        result->isEmpty = 0;
+        for (auto i = begin; i < end + 1; ++i) {result->array_[i - begin] = std::move(this->Get(i));}
+        return result;
     }
 
-    virtual Seq<T>* Copy() const override {return new SeqArray();}
+    virtual Seq<T>* Copy() const override {return new SeqArray(*this);}
+
+    virtual void Clear() override {
+        delete array_;
+        array_ = nullptr;
+        isEmpty = 1;
+        length_ = 0;
+    }
 };
 #endif

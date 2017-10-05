@@ -111,6 +111,16 @@ public:
             throw std::out_of_range("bad index");
     }
 
+    virtual T& Get(std::size_t index) override {
+        if ((index < length_) && (index  >= 0)) {
+            Node* tmp = head_;
+            for (auto i = 0; i < index; ++i) {tmp = tmp->next_;}
+            return tmp->data_;
+        }
+        else
+            throw std::out_of_range("bad index");
+    }
+
     virtual void InsertAt(std::size_t index, T elem) override {
         if ((index > length_) && (index < 0)) {throw std::out_of_range("invalid index");}
         auto next = new Node(elem);
@@ -159,31 +169,38 @@ public:
             }
         }
 
-    SeqList<T> GetSubSeq(std::size_t begin, std::size_t end) const {
+    virtual Seq<T>* GetSubSeq(std::size_t begin, std::size_t end) const override {
         if ((begin > end) || (end >= length_)) {throw std::out_of_range("bad index");}
-        SeqList<T> result;
+        SeqList<T>* result = new SeqList;
         auto tmp = head_;
         Node* tmp2;
         for (auto i = 0; i < end + 1; ++i) {
             if (i < begin) {tmp = tmp->next_;}
             else if (i == begin) {
-                result.head_ = new Node(tmp->data_);
-                tmp2 = result.head_;
-                ++result.length_;
-                result.isEmpty = 0;
+                result->head_ = new Node(tmp->data_);
+                tmp2 = result->head_;
+                ++result->length_;
+                result->isEmpty = 0;
                 tmp = tmp->next_;
             }
             else {
                 tmp2->next_ = new Node(tmp->data_);
                 tmp2 = tmp2->next_; 
                 tmp = tmp->next_;
-                ++result.length_;
+                ++result->length_;
             }
         }
-        return std::move(result);
+        return result;
     }
 
-    virtual Seq<T>* Copy() const override {return new SeqList();}
+    virtual Seq<T>* Copy() const override {return new SeqList(*this);}
+
+    virtual void Clear() override {
+        delete head_;
+        head_ = nullptr;
+        isEmpty = 1;
+        length_ = 0;
+    }
 };
 #endif
 
